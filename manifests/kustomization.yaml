@@ -1,4 +1,3 @@
 resources:
-  - configmap-goods.yaml
   - goods-probe-deployment.yaml
   - hpa-edu-goods.yaml
