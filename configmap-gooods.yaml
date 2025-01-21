@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edu-goods-config
+  namespace: edu-goods
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+
