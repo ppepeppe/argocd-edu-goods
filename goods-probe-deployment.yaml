@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edu-goods-deployment
+spec:
+  selector:
+    matchLabels:
+      app: edu-goods-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: edu-goods-app
+        version: blue
+    spec:
+      containers:
+        - name: edu-goods-app
+          image: byunseongdo/edu-good:v0.5      # dockerhub image repository : repo/image명:Tag
+          imagePullPolicy: IfNotPresent        # k8s 클러스터에 다운로드 된 이미지 없으면 다운 or Always
+          ports:
+            - name: http
+              containerPort: 8080              # demo.jar 실행 포트
+              protocol: TCP
+          resources:                           # pod 사용 리소스 설정 블록
+            requests:                          # 생성시 필요한 최소 리소스
+              cpu: "1"
+              memory: "2Gi"
+            limits:                            # pod가 사용 가능한 최대 리소스
+              cpu: "1"
+              memory: "2Gi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          envFrom:
+            - configMapRef:
+                name: edu-goods-config
+      imagePullSecrets:                        # dockerhub 이미지 pull 위한 secret
+        - name: k8s-edu-dockerhub-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edu-goods-service
+spec:
+  selector:
+    app: edu-goods-app
+    version: blue  # 기본적으로 Blue 배포에 연결
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080                        # deployment에서 설정한 컨테이너 포트 매핑
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: edu-goods-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "edu-goods.211.253.27.97.sslip.io"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: edu-goods-service
+                port:
+                  number: 80
