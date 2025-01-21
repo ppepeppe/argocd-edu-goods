@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: edu-goods-deployment
+  namespace: edu-goods
 spec:
   selector:
     matchLabels:
@@ -45,6 +46,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: edu-goods-service
+  namespace: edu-goods
 spec:
   selector:
     app: edu-goods-app
@@ -59,6 +61,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: edu-goods-ingress
+  namespace: edu-goods
 spec:
   ingressClassName: nginx
   rules:
